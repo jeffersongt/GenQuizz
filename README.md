@@ -1,7 +1,7 @@
 # GenQuizz
 - This project is a quizz game based on 20 questions on random subjects.
 
-# Prerequisite
+# Prerequisites
 - PHP 7
 
 # Usage
