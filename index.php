@@ -1,19 +1,8 @@
 <?php
 
-require_once 'config.php';
-
-try {
-	$dsn = "pgsql:host=$host;port=5432;dbname=$db;";
-	$pdo = new PDO($dsn, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-} catch (PDOException $e) {
-	die($e->getMessage());
-}
-
-$stmt = $pdo->query("SELECT * FROM quizz");
-
-// fetch the highest_score
-$row = $stmt->fetch(\PDO::FETCH_ASSOC);
-$highest_score = $row['highest_score'];
+$file = fopen("score.txt", "r");
+$highest_score = fgets($file);
+fclose($file);
 
 ?>
 
@@ -65,19 +54,115 @@ $highest_score = $row['highest_score'];
                 display: block;
                 margin: 0.4em auto;
             }
+            body {
+                overflow-y: hidden;
+                overflow-x: hidden;
+            }
         </style>
     </head>
     <body>
         <nav class="navbar navbar-dark">
             <div class="container">
-                <a class="navbar-brand" href="#">GenQuizz</a>
+                <a class="navbar-brand" href="/">GenQuizz</a>
                 <span class="navbar-text">
                     Highest score : <?php echo $highest_score; ?>
                 </span>
             </div>
         </nav>
-        <div class="h-100 row align-items-center justify-content-center">
-            <a href="" class="button2">     Play     </a>
+        <div class="h-100 row align-items-center justify-content-center" id="playBtn">
+            <a href="#" id="playButton" class="button2">     Play     </a>
+        </div>
+        <div class="h-25 row align-items-center justify-content-center" id="endScreen" hidden>
+            <h3 style="color: #f7f4f3; font-family: 'Roboto', sans-serif" id="scoreText"></h3>
+        </div>
+        <div class="row align-items-center justify-content-center" id="homeBtn" style="display: none;">
+            <a href="/" id="homeButton" class="button2">     Back     </a>
+        </div>
+        <div id="quizzButtons" style="display: none;">
+            <div class="h-25 row align-items-center justify-content-center">
+                <h3 style="color: #f7f4f3; font-family: 'Roboto', sans-serif" id="question"></h3>
+            </div>
+            <div class="row align-items-center justify-content-center">
+                <a href="#" id="trueButton" class="button2" style="margin-right: 5px;">     True     </a>
+                <a href="#" id="falseButton" class="button2" style="margin-left: 5px;">     False     </a>
+            </div>
         </div>
     <body>
 </html>
+
+<script>
+
+var i = 0;
+var resp = '';
+var score = 0;
+
+$(document).ready(function () {
+    $('#playButton').click(function(e) {
+    e.preventDefault();
+    var fd = new FormData();
+        $.ajax({
+            type: 'POST',
+            url: "quizz.php",
+            dataType: "json",
+            success: function(response) {
+                $('#playBtn').hide();
+                $('#quizzButtons').css("display", "block");
+                resp = response;
+                startQuizz(response);
+            }
+        });
+    });
+});
+
+function startQuizz(response) {
+    document.getElementById("question").innerHTML = response['results'][i]['question'];
+}
+
+document.getElementById('trueButton').onclick = function(e) {
+    if (i == 19) {
+        endGame();
+        return;
+    }
+    checkAnswer('True');
+    i++;
+    startQuizz(resp);
+}
+
+document.getElementById('falseButton').onclick = function(e) {
+    if (i == 19) {
+        endGame();
+        return;
+    }
+    checkAnswer('False');
+    i++;
+    startQuizz(resp);
+}
+
+function endGame() {
+    $('#quizzButtons').css("display", "none");
+    $('#homeBtn').css("display", "");
+    $('#endScreen').replaceWith("<div class='h-25 row align-items-center justify-content-center' \
+    id='endScreen''><h3 style='color: #f7f4f3; font-family: Roboto, sans-serif' \
+    id='scoreText'>You scored " + score + " points !</h3></div>");
+    checkHighest();
+}
+
+function checkHighest() {
+    if (<?= $highest_score; ?> <= score) {
+        $.ajax({
+            type: 'POST',
+            url: "write_score.php?" + $.param({ score }),
+            dataType: "",
+            success: function(response) {}
+        });
+    };
+}
+
+function checkAnswer(answer) {
+    var result = resp['results'][i]['correct_answer'];
+    if (answer == result) {
+        score = score + 1;
+    }
+}
+
+</script>
