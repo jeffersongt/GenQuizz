@@ -78,9 +78,9 @@ fclose($file);
         <div class="row align-items-center justify-content-center" id="homeBtn" style="display: none;">
             <a href="/" id="homeButton" class="button2">     Back     </a>
         </div>
-        <div id="quizzButtons" style="display: none;">
+        <div id="quizzButtons" style="display: none; background-color: #a7a6a6; margin-right: 25px; margin-left: 25px; margin-top: 25px; opacity: 0.95; border-radius: 10px">
             <div class="h-25 row align-items-center justify-content-center">
-                <h3 style="color: #f7f4f3; font-family: 'Roboto', sans-serif" id="question"></h3>
+                <h3 style="color: #f7f4f3; font-family: 'Roboto', sans-serif; margin-left: 80px; margin-right: 50px" id="question"></h3>
             </div>
             <div class="row align-items-center justify-content-center">
                 <a href="#" id="trueButton" class="button2" style="margin-right: 5px;">     True     </a>
